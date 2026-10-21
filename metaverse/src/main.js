@@ -235,6 +235,25 @@ async function boot() {
     traffic.rgEnabled = on;
     $('tRG').checked = on;
   };
+  // LED 위치 비교 (L 키 · 관제 모드 버튼): 운전석에서 LED가 언제까지 보이는지 비교해 보는 용도.
+  // 화면 속 LED 자리만 바뀌고 판단·운전자 반응·비교 수치는 그대로. 자동 시연·효과 비교는 늘 지금 자리
+  const LED_SPOTS = {
+    corner: ['지금 자리', '남동 모퉁이 기둥 · 높이 3.2 m'],
+    low: ['낮춘 자리', '같은 기둥 · 높이 2.45 m'],
+    far: ['건너편 끝', '북동 모퉁이 기둥 · 높이 3.2 m'],
+  };
+  app.ledSpot = 'corner';
+  app.setLedSpot = (spot, quiet = false) => {
+    if (!LED_SPOTS[spot]) return;
+    app.ledSpot = spot;
+    if (app.mode === 'drive' || app.mode === 'sandbox') rg.setLedSpot(spot);
+    for (const b of document.querySelectorAll('#segLed button')) b.setAttribute('aria-pressed', b.dataset.v === spot ? 'true' : 'false');
+    if (!quiet) ui.flash('info', `LED 위치 · ${LED_SPOTS[spot][0]}`, LED_SPOTS[spot][1], 1.4);
+  };
+  const cycleLedSpot = () => {
+    const keys = Object.keys(LED_SPOTS);
+    app.setLedSpot(keys[(keys.indexOf(app.ledSpot) + 1) % keys.length]);
+  };
   app.slowmo = (scale, dur) => {
     app.timeScale = scale;
     app.slowUntil = app.realT + dur;
@@ -285,6 +304,7 @@ async function boot() {
     if (mode === 'story') setTune(false);
     else ui.el.sidebar.hidden = mode !== 'sandbox' || !tune.hidden;
     applySettings(mode === 'story' ? DEFAULTS : app.settings);
+    rg.setLedSpot(mode === 'story' ? 'corner' : app.ledSpot);
     app.timeScale = 1;
     if (mode === 'story') {
       director.start();
@@ -343,6 +363,7 @@ async function boot() {
       changed();
     };
   }
+  for (const b of document.querySelectorAll('#segLed button')) b.onclick = () => app.setLedSpot(b.dataset.v);
   for (const b of document.querySelectorAll('.modes button')) b.onclick = () => setMode(b.dataset.mode);
   $('capSkip').onclick = () => director.skip();
 
@@ -462,6 +483,7 @@ async function boot() {
       case 'KeyF': toggleFullscreen(); break;
       case 'KeyC': if (app.mode === 'drive') rig.setFollow(player, rig.followKind === 'driver' ? 'chase' : 'driver'); break;
       case 'KeyR': if (app.mode === 'drive') restartDrive(); break;
+      case 'KeyL': if (app.mode === 'drive' || app.mode === 'sandbox') cycleLedSpot(); break;
       case 'Escape': $('help').hidden = true; break;
       default: break;
     }
@@ -615,6 +637,7 @@ async function boot() {
     const showTg = app.mode !== 'drive' && !(rig.mode === 'follow' && rig.followKind === 'driver') && ui.el.title.dataset.on !== 'true';
     const showDev = showTg && !cmp;
     if (showDev) {
+      rg.ledFace.getWorldPosition(ledPos); // LED 위치 비교로 자리가 바뀔 수 있음
       ui.placeLabel(ledLabel, camera, ledPos.x, ledPos.y + 0.75, ledPos.z, 'Right Guard LED');
       ui.placeLabel(radarLabel, camera, RG.pole.x, G.CURB_H + RG.radarHeight + 0.35, RG.pole.z, rg.enabled ? '레이더 · LD2450' : '레이더 꺼짐');
     } else { ui.hideLabel(ledLabel); ui.hideLabel(radarLabel); }

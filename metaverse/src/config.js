@@ -87,6 +87,7 @@ export const RG = {
   radarTiltDeg: 0, // 아래로 기울인 각도 (+ = 아래)
   radarVHalfFov: 35, // 상하 ±35° (LD2450)
   ledHeight: 3.05,
+  ledLowHeight: 2.3, // LED 위치 비교(L 키): 같은 기둥에서 낮춘 높이 (인도 기준 · 도로면에서 2.45 m)
   ledW: 1.6,
   ledH: 0.8,
   holdSec: 1.0, // 보행자 이탈 후 안전 지연 (펌웨어와 동일)
@@ -101,6 +102,10 @@ export function deriveRG() {
 deriveRG();
 // LED 패널이 바라보는 방향: 북행(신설동 → 성북구청) 우회전 차량 운전자 쪽
 RG.ledFace = Math.atan2(G.LANE.NB_OUT - RG.pole.x, G.STOP.NB + 14 - RG.pole.z); // rotation.y (패널 법선 = (sin, cos))
+// LED 위치 비교(L 키)의 '건너편 끝': 같은 고려대로 동쪽 횡단보도의 북쪽 끝(북동 모퉁이) 기둥.
+// 정지선에 선 우회전 차로를 바라봄 — 정지선에서 약 24 m라 경차 지붕선 아래로 들어옴
+RG.farPole = { x: RG.pole.x, z: -RG.pole.z }; // (8.8, -7.3)
+RG.farFace = Math.atan2(G.LANE.NB_OUT - RG.farPole.x, G.STOP.NB - RG.farPole.z);
 
 // 레이더 상하 범위: 수평 거리 d에서 키 h인 사람의 몸이 빔 안에 들어오는가
 export function radarSeesHeight(d, h) {
