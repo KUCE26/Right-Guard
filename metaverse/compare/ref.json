@@ -1,0 +1,264 @@
+{
+ "date": "2026-10-10",
+ "scenarios": [
+  {
+   "key": "normal",
+   "name": "평상시 낮",
+   "A": {
+    "turns": 854,
+    "required": 304,
+    "complied": 194,
+    "reqIntent": 62,
+    "compIntent": 5,
+    "close": 7,
+    "near": 23,
+    "crash": 3,
+    "rgStops": 0,
+    "falseStops": 0,
+    "pedCross": 1178,
+    "pedYieldFail": 27,
+    "pedConflict": 30,
+    "det": 0,
+    "detOk": 0,
+    "warnOk": 0,
+    "ep": 0,
+    "epFalse": 0,
+    "min": 199.99999999986983,
+    "turnTime": 23.46256830599547,
+    "lead": null,
+    "compliance": 0.6381578947368421,
+    "complianceIntent": 0.08064516129032258,
+    "yieldFailRate": 0.022920203735144314,
+    "detRate": null,
+    "warnRate": null,
+    "falseRate": null,
+    "turnsPerHour": 256.20000000016677,
+    "range": {
+     "compliance": [
+      0.5522388059701493,
+      0.7222222222222222
+     ],
+     "near100": [
+      1.7647058823529411,
+      3.4482758620689653
+     ]
+    }
+   },
+   "B": {
+    "turns": 844,
+    "required": 217,
+    "complied": 200,
+    "reqIntent": 17,
+    "compIntent": 13,
+    "close": 2,
+    "near": 9,
+    "crash": 1,
+    "rgStops": 174,
+    "falseStops": 7,
+    "pedCross": 1179,
+    "pedYieldFail": 8,
+    "pedConflict": 15,
+    "det": 1179,
+    "detOk": 930,
+    "warnOk": 1178,
+    "ep": 358,
+    "epFalse": 39,
+    "min": 199.99999999986983,
+    "turnTime": 34.296958925726734,
+    "lead": 0.7378136200712082,
+    "compliance": 0.9216589861751152,
+    "complianceIntent": 0.7647058823529411,
+    "yieldFailRate": 0.006785411365564037,
+    "detRate": 0.7888040712468194,
+    "warnRate": 0.9991518235793045,
+    "falseRate": 0.10893854748603352,
+    "turnsPerHour": 253.2000000001648,
+    "range": {
+     "compliance": [
+      0.8837209302325582,
+      0.9534883720930233
+     ],
+     "near100": [
+      0.0,
+      1.7341040462427744
+     ]
+    }
+   }
+  },
+  {
+   "key": "rush",
+   "name": "출퇴근",
+   "A": {
+    "turns": 708,
+    "required": 298,
+    "complied": 206,
+    "reqIntent": 36,
+    "compIntent": 1,
+    "close": 8,
+    "near": 22,
+    "crash": 3,
+    "rgStops": 0,
+    "falseStops": 0,
+    "pedCross": 2035,
+    "pedYieldFail": 26,
+    "pedConflict": 32,
+    "det": 0,
+    "detOk": 0,
+    "warnOk": 0,
+    "ep": 0,
+    "epFalse": 0,
+    "min": 199.99999999986983,
+    "turnTime": 24.67142184555864,
+    "lead": null,
+    "compliance": 0.6912751677852349,
+    "complianceIntent": 0.027777777777777776,
+    "yieldFailRate": 0.012776412776412777,
+    "detRate": null,
+    "warnRate": null,
+    "falseRate": null,
+    "turnsPerHour": 212.40000000013825,
+    "range": {
+     "compliance": [
+      0.5967741935483871,
+      0.7586206896551724
+     ],
+     "near100": [
+      2.0689655172413794,
+      4.195804195804196
+     ]
+    }
+   },
+   "B": {
+    "turns": 703,
+    "required": 219,
+    "complied": 206,
+    "reqIntent": 14,
+    "compIntent": 12,
+    "close": 3,
+    "near": 10,
+    "crash": 2,
+    "rgStops": 174,
+    "falseStops": 4,
+    "pedCross": 2035,
+    "pedYieldFail": 9,
+    "pedConflict": 19,
+    "det": 2035,
+    "detOk": 1171,
+    "warnOk": 2035,
+    "ep": 289,
+    "epFalse": 14,
+    "min": 199.99999999986983,
+    "turnTime": 35.78055950685116,
+    "lead": 0.84514659834845,
+    "compliance": 0.9406392694063926,
+    "complianceIntent": 0.8571428571428571,
+    "yieldFailRate": 0.004422604422604423,
+    "detRate": 0.5754299754299754,
+    "warnRate": 1.0,
+    "falseRate": 0.04844290657439446,
+    "turnsPerHour": 210.90000000013725,
+    "range": {
+     "compliance": [
+      0.8958333333333334,
+      0.9772727272727273
+     ],
+     "near100": [
+      0.0,
+      4.285714285714286
+     ]
+    }
+   }
+  },
+  {
+   "key": "school",
+   "name": "하교 시간",
+   "A": {
+    "turns": 853,
+    "required": 309,
+    "complied": 203,
+    "reqIntent": 53,
+    "compIntent": 5,
+    "close": 17,
+    "near": 38,
+    "crash": 6,
+    "rgStops": 0,
+    "falseStops": 0,
+    "pedCross": 1351,
+    "pedYieldFail": 27,
+    "pedConflict": 46,
+    "det": 0,
+    "detOk": 0,
+    "warnOk": 0,
+    "ep": 0,
+    "epFalse": 0,
+    "min": 199.99999999986983,
+    "turnTime": 22.850449394280062,
+    "lead": null,
+    "compliance": 0.656957928802589,
+    "complianceIntent": 0.09433962264150944,
+    "yieldFailRate": 0.01998519615099926,
+    "detRate": null,
+    "warnRate": null,
+    "falseRate": null,
+    "turnsPerHour": 255.90000000016656,
+    "range": {
+     "compliance": [
+      0.5797101449275363,
+      0.696969696969697
+     ],
+     "near100": [
+      2.976190476190476,
+      6.58682634730539
+     ]
+    }
+   },
+   "B": {
+    "turns": 847,
+    "required": 224,
+    "complied": 195,
+    "reqIntent": 21,
+    "compIntent": 13,
+    "close": 3,
+    "near": 10,
+    "crash": 0,
+    "rgStops": 178,
+    "falseStops": 10,
+    "pedCross": 1351,
+    "pedYieldFail": 3,
+    "pedConflict": 12,
+    "det": 1351,
+    "detOk": 1002,
+    "warnOk": 1349,
+    "ep": 432,
+    "epFalse": 108,
+    "min": 199.99999999986983,
+    "turnTime": 34.514443132602295,
+    "lead": 0.7724883566196019,
+    "compliance": 0.8705357142857143,
+    "complianceIntent": 0.6190476190476191,
+    "yieldFailRate": 0.0022205773501110288,
+    "detRate": 0.7416728349370837,
+    "warnRate": 0.9985196150999259,
+    "falseRate": 0.25,
+    "turnsPerHour": 254.10000000016538,
+    "range": {
+     "compliance": [
+      0.8181818181818182,
+      0.9090909090909091
+     ],
+     "near100": [
+      0.0,
+      1.7857142857142856
+     ]
+    }
+   }
+  }
+ ],
+ "seeds": 5,
+ "minutes": 40,
+ "assume": {
+  "pSelf": 0.1,
+  "pObey": 0.8,
+  "prt": 1.3
+ }
+}
