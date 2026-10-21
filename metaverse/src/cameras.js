@@ -83,6 +83,8 @@ export class CameraRig {
 
   update(dt) {
     this.shotT += dt;
+    // 운전석 시점이 아니면 실내를 걷고 숨겨 둔 차를 다시 보이게
+    if (this.cockpit && this.cockpit.active && !(this.mode === 'follow' && this.followKind === 'driver')) this.cockpit.release();
     let wantPos = null, wantLook = null, fov = 55, k = this.k;
     if (this.mode === 'orbit') {
       this.controls.update();
@@ -99,6 +101,14 @@ export class CameraRig {
     } else if (this.mode === 'follow') {
       const p = poseOf(this.follow);
       if (!p) return;
+      // 운전석 시점: 차 안 운전자 눈 위치에 고정 (실내는 real/cockpit.js 가 겹쳐 그림)
+      if (this.followKind === 'driver' && this.cockpit && this.cockpit.place(this.follow, this.cam, dt, p)) {
+        this.pos.copy(this.cam.position);
+        this.look.copy(this.cockpit.lookPoint);
+        this._fov(this.cockpit.fov, dt);
+        this._snap = false;
+        return;
+      }
       const rx = -p.fz, rz = p.fx; // 오른쪽
       if (this.followKind === 'driver') {
         // 보닛 위 시점 (지붕에 가리지 않게 앞유리 바로 앞)

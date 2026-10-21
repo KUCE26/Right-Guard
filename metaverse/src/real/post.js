@@ -57,8 +57,15 @@ export function createPost(renderer, scene, camera, { level = 2 } = {}) {
   const bloom = new UnrealBloomPass(new THREE.Vector2(Math.max(1, size.x >> 1), Math.max(1, size.y >> 1)), 0.12, 0.45, 0.92);
   const grade = new ShaderPass(GradeShader);
   const output = new OutputPass();
+  // 운전석 실내처럼 세상 위에 겹쳐 그릴 장면 (깊이만 지우고 그림)
+  const overlayPass = new RenderPass(new THREE.Scene(), camera);
+  overlayPass.clear = false;
+  overlayPass.clearDepth = true;
+  overlayPass.enabled = false;
+  let overlay = null;
   composer.addPass(renderPass);
   composer.addPass(gtao);
+  composer.addPass(overlayPass);
   composer.addPass(bloom);
   composer.addPass(grade);
   composer.addPass(output);
@@ -94,10 +101,22 @@ export function createPost(renderer, scene, camera, { level = 2 } = {}) {
       const aw = Math.max(1, Math.round(w * pr * post.aoScale)), ah = Math.max(1, Math.round(h * pr * post.aoScale));
       gtao.setSize(aw, ah);
     },
+    setOverlay(oScene, oCam) {
+      overlay = oScene ? { scene: oScene, cam: oCam } : null;
+      overlayPass.enabled = !!overlay;
+      if (overlay) { overlayPass.scene = oScene; overlayPass.camera = oCam; }
+    },
     render(dt) {
       if (post.level <= 0) {
         renderer.setRenderTarget(null);
         renderer.render(scene, camera);
+        if (overlay) {
+          const ac = renderer.autoClear;
+          renderer.autoClear = false;
+          renderer.clearDepth();
+          renderer.render(overlay.scene, overlay.cam);
+          renderer.autoClear = ac;
+        }
         return;
       }
       renderer.getSize(cur);

@@ -18,6 +18,7 @@ import { radialTexture } from './textures.js';
 import { parseCompareHash, setupCompare } from './compare.js';
 import { createEnvironment, SUN_OFF } from './real/atmosphere.js';
 import { createPost } from './real/post.js';
+import { createCockpit } from './real/cockpit.js';
 
 const $ = (id) => document.getElementById(id);
 performance.mark('modulesLoaded');
@@ -91,9 +92,12 @@ async function boot() {
   const isCmp = !!parseCompareHash(location.hash);
   const startLevel = qParam != null && /^[012]$/.test(qParam) ? +qParam : isCmp ? 1 : 2;
   const post = createPost(renderer, scene, camera, { level: startLevel });
+  // 운전석 시점의 실내 (핸들·계기판·필러·거울)
+  const cockpit = createCockpit();
+  rig.cockpit = cockpit;
 
   const app = {
-    scene, camera, renderer, world, routes, signals, rg, traffic, player, link, rig, post, env,
+    scene, camera, renderer, world, routes, signals, rg, traffic, player, link, rig, post, env, cockpit,
     mode: 'story', timeScale: 1, slowUntil: 0, night: false, simT: 0, realT: 0,
     stats: { turns: 0, rgStops: 0, near: 0 }, twinSuppressed: false, followNpc: null,
   };
@@ -257,6 +261,7 @@ async function boot() {
     NIGHT.on = on;
     for (const g of NIGHT.registry) g.userData.fx.visible = on;
     post.setNight(on);
+    cockpit.setNight(on);
     // 반사·간접광도 밤 세계로 다시 찍음
     const look = rig.look;
     sun.position.copy(SUN_OFF); sun.target.position.set(0, 0, 0);
@@ -442,6 +447,8 @@ async function boot() {
       e.preventDefault();
       return;
     }
+    // 운전석 시점에서 고개 돌리기 (누르고 있는 동안)
+    if (e.code === 'KeyQ' || e.code === 'KeyE') { cockpit.look = e.code === 'KeyQ' ? -1 : 1; return; }
     if (e.repeat) return;
     switch (e.code) {
       case 'Digit1': setMode('story'); break;
@@ -459,8 +466,11 @@ async function boot() {
       default: break;
     }
   });
-  window.addEventListener('keyup', (e) => { player.keys[e.code] = false; });
-  window.addEventListener('blur', () => { player.keys = {}; });
+  window.addEventListener('keyup', (e) => {
+    player.keys[e.code] = false;
+    if ((e.code === 'KeyQ' && cockpit.look < 0) || (e.code === 'KeyE' && cockpit.look > 0)) cockpit.look = 0;
+  });
+  window.addEventListener('blur', () => { player.keys = {}; cockpit.look = 0; });
   const isTouch = 'ontouchstart' in window || (window.matchMedia && matchMedia('(pointer: coarse)').matches);
   if (isTouch) $('app').classList.add('is-touch');
   for (const b of document.querySelectorAll('#touch button')) {
@@ -620,6 +630,11 @@ async function boot() {
       ui.placeLabel(twinLabel, camera, twin.p.x, twin.p.y + 2.1, twin.p.z, twin.hasPos ? '현실 보행자 (LD2450)' : '현실 보행자 감지');
     } else ui.hideLabel(twinLabel);
 
+    // 운전석 시점: 거울 갱신 + 실내를 세상 위에 겹쳐 그리기
+    if (cockpit.active) {
+      cockpit.beforeRender(renderer, scene, camera, post.level);
+      post.setOverlay(cockpit.scene, cockpit.cam);
+    } else post.setOverlay(null);
     world.sky.update(app.realT, camera.position);
     if (world.treeField) world.treeField.update(camera.position);
     post.render();
