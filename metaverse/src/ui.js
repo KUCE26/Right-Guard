@@ -293,6 +293,8 @@ export class UI {
     c.strokeStyle = '#E7DECE';
     c.lineWidth = 2;
     c.beginPath(); c.arc(X(RG.pole.x), Z(RG.pole.z), 6, 0, Math.PI * 2); c.fill(); c.stroke();
+    // LED를 건너편 끝으로 옮겨 비교 중이면 그 자리도 표시 (네모 = LED)
+    if (A.rg.ledSpot === 'far') { c.beginPath(); c.rect(X(RG.farPole.x) - 6, Z(RG.farPole.z) - 6, 12, 12); c.fill(); c.stroke(); }
     // 행선지 · 도로 이름
     c.font = 'bold 19px "Noto Sans KR", sans-serif';
     c.textBaseline = 'middle';

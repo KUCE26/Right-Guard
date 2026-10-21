@@ -47,6 +47,8 @@ export class RightGuard {
     const band = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.32, 12), new THREE.MeshStandardMaterial({ color: PAL.crimson, roughness: 0.5 }));
     band.position.y = 2.15;
     grp.add(band);
+    this.poleMesh = poleM;
+    this.bandMesh = band;
 
     // LED 패널
     const ledG = new THREE.Group();
@@ -87,6 +89,8 @@ export class RightGuard {
     const plate = new THREE.Mesh(new THREE.PlaneGeometry(RG.ledW, 0.25), new THREE.MeshBasicMaterial({ map: plateT }));
     plate.position.set(0, -RG.ledH / 2 - 0.2, 0.2);
     ledG.add(plate);
+    this.plate = plate;
+    this.ledSpot = 'corner';
     // 발광 효과
     this.glowTex = radialTexture('rgba(255,255,255,1)', 'rgba(255,255,255,0)');
     this.glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: this.glowTex, color: 0x22ff88, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0.35 }));
@@ -254,6 +258,32 @@ export class RightGuard {
     this.sensorGroup.visible = on;
     this.sweepPivot.visible = on;
     if (!on && this.markers) for (const m of this.markers) { m.ring.visible = false; m.ln.visible = false; }
+  }
+
+  // LED 위치 비교 (관제·운전 모드의 L 키): 화면 속 LED 자리만 바꾼다. 레이더·판단·운전자 반응 모델은 그대로.
+  //   corner = 지금 (남동 모퉁이 기둥 · 도로면 3.2 m) · low = 같은 기둥 2.45 m · far = 건너편 끝 (북동 모퉁이 기둥 · 3.2 m)
+  setLedSpot(spot) {
+    if (spot === this.ledSpot) return;
+    const led = this.ledGroup;
+    if (spot === 'far') {
+      if (!this.farPole) {
+        // 처음 고를 때만 만든다 — 효과 비교·자동 시연의 난수 순서를 건드리지 않도록
+        const g = new THREE.Group();
+        g.position.set(RG.farPole.x, G.CURB_H, RG.farPole.z);
+        g.add(this.poleMesh.clone(), this.bandMesh.clone());
+        this.scene.add(g);
+        this.farPole = g;
+      }
+      led.position.set(RG.farPole.x - RG.pole.x, RG.ledHeight, RG.farPole.z - RG.pole.z);
+      led.rotation.y = RG.farFace;
+    } else {
+      led.position.set(0, spot === 'low' ? RG.ledLowHeight : RG.ledHeight, 0);
+      led.rotation.y = RG.ledFace;
+    }
+    if (this.farPole) this.farPole.visible = spot === 'far';
+    // 낮춘 자리에서는 이름판을 LED 위로 올려 사람 키 높이를 비워 둠
+    this.plate.position.y = spot === 'low' ? RG.ledH / 2 + 0.2 : -RG.ledH / 2 - 0.2;
+    this.ledSpot = spot;
   }
 
   _setPattern(key) {
