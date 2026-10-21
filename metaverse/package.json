@@ -1,0 +1,17 @@
+{
+  "name": "right-guard-metaverse",
+  "version": "1.0.0",
+  "description": "Right Guard 메타버스 (보문역 사거리 3D 시연·효과 비교) 원본 코드",
+  "scripts": {
+    "build": "node build.mjs",
+    "build:site": "node build.mjs --site",
+    "build:compare": "python3 compare/build_compare.py"
+  },
+  "author": "Team Right Guard",
+  "license": "ISC",
+  "dependencies": {
+    "esbuild": "^0.24.2",
+    "three": "^0.170.0"
+  },
+  "private": true
+}
