@@ -16,6 +16,7 @@ export class DeviceLink {
     this.realExplicit = false; // RG:REAL 줄을 받은 적 있음
     this.realT = -99;
     this.realPos = null;
+    this.realTargets = []; // RG:POS 로 받은 사람들 (mm, 가까운 순, 최대 3명)
     this.realPosT = -99;
     this.metaState = 'GO';
     this.mode = 'MIX';
@@ -184,7 +185,12 @@ export class DeviceLink {
       return;
     }
     if ((m = up.match(/^RG:POS,(-?\d+),(-?\d+)/))) {
-      this.realPos = { x: +m[1], y: +m[2] };
+      // RG:POS,x1,y1[,x2,y2[,x3,y3]] — 레이더가 보는 사람 모두 (가까운 순). 첫 쌍이 가장 가까운 사람
+      const nums = up.slice(7).split(',').map((s) => parseInt(s, 10)).filter((n) => Number.isFinite(n));
+      const list = [];
+      for (let i = 0; i + 1 < nums.length && list.length < 3; i += 2) list.push({ x: nums[i], y: nums[i + 1] });
+      this.realTargets = list.length ? list : [{ x: +m[1], y: +m[2] }];
+      this.realPos = this.realTargets[0];
       this.realPosT = t;
       if (!this.realExplicit) { this.realDetected = true; this.realT = t; }
       return;
@@ -202,6 +208,7 @@ export class DeviceLink {
       if (Math.abs(y) < 20 && Math.abs(x) < 20) { x *= 1000; y *= 1000; } // m 단위로 보이면 mm로
       if (y > 0) {
         this.realPos = { x, y };
+        this.realTargets = [this.realPos];
         this.realPosT = t;
         if (!this.realExplicit) { this.realDetected = true; this.realT = t; }
       }

@@ -538,7 +538,8 @@ async function boot() {
       ui.flash('danger', '아찔한 순간!', 'Right Guard가 꺼져 있어 운전자가 가림막 앞 보행자를 늦게 발견했어요');
     }
   };
-  const ledLabel = ui.label('led', 'dev'), radarLabel = ui.label('radar', 'dev'), twinLabel = ui.label('twin', 'cyan');
+  const ledLabel = ui.label('led', 'dev'), radarLabel = ui.label('radar', 'dev');
+  const twinLabels = [ui.label('twin0', 'cyan'), ui.label('twin1', 'cyan'), ui.label('twin2', 'cyan')];
   const tLabels = [ui.label('t0'), ui.label('t1'), ui.label('t2')];
   const ledPos = new THREE.Vector3();
   scene.updateMatrixWorld(true);
@@ -649,9 +650,12 @@ async function boot() {
       const text = tg.p.isTwin ? `현실 보행자 · ${tg.dist.toFixed(1)} m` : `T${i + 1}${calm ? ' · 대기' : ''} · ${tg.dist.toFixed(1)} m`;
       ui.placeLabel(l, camera, tg.p.x, tg.p.y + h, tg.p.z, text, tg.p.isTwin ? 'cyan' : calm ? 'amber' : 'red');
     });
-    if (twin.visible && !rg.targets.some((t) => t.p.isTwin)) {
-      ui.placeLabel(twinLabel, camera, twin.p.x, twin.p.y + 2.1, twin.p.z, twin.hasPos ? '현실 보행자 (LD2450)' : '현실 보행자 감지');
-    } else ui.hideLabel(twinLabel);
+    // 현실 보행자 홀로그램 라벨 — 레이더가 표적으로 잡아 T 라벨이 붙은 사람은 뺌
+    twinLabels.forEach((l, i) => {
+      const s = twin.list[i];
+      if (!s || !showTg || rg.targets.some((t) => t.p === s.p)) { ui.hideLabel(l); return; }
+      ui.placeLabel(l, camera, s.p.x, s.p.y + 2.1, s.p.z, s.hasPos ? '현실 보행자 (LD2450)' : '현실 보행자 감지');
+    });
 
     // 운전석 시점: 거울 갱신 + 실내를 세상 위에 겹쳐 그리기
     if (cockpit.active) {
