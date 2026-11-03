@@ -32,11 +32,13 @@ const unsigned long POS_MS  = 100;    // 좌표 전송 간격 (ms) — 10 Hz
 unsigned long lastSeenMs = 0;         // 마지막으로 사람이 보인 시각
 unsigned long lastPosMs  = 0;         // 마지막 좌표 전송 시각
 unsigned long lastRetryMs = 0;        // 마지막 재연결 시도 시각
+void ld2450MultiTarget();             // (아래에 정의)
 
 void setup() {
   Serial.begin(115200);
   Serial2.begin(256000, SERIAL_8N1, 16, 17);   // 센서TX→16, 센서RX→17
   Serial.println("RG:HELLO,SENSOR,1.0");       // [RG] 노트북 USB에 직접 꽂아도 메타버스가 '센서 유닛'으로 알아봄
+  ld2450MultiTarget();                         // [RG] 레이더를 '다중 추적'(최대 3명)으로 설정
 
   // 송신기(Master) 모드로 블루투스 시작
   SerialBT.begin("RightGuard_Sensor", true);
@@ -49,6 +51,24 @@ void setup() {
   } else {
     Serial.println("❌ 연결 실패. (Loop에서 재연결 시도합니다)");
   }
+}
+
+// [RG] LD2450 을 다중 추적 모드로 (단일 추적이면 여러 명이 있어도 한 명만 보고함)
+//      설정 시작 → 다중 추적 명령 → 설정 끝. 이미 다중 추적이면 그대로 유지됨
+void ld2450Send(const uint8_t *cmd, size_t n) {
+  Serial2.write(cmd, n);
+  delay(100);
+  while (Serial2.available()) Serial2.read();  // 응답은 버림
+}
+void ld2450MultiTarget() {
+  const uint8_t enableCfg[] = { 0xFD, 0xFC, 0xFB, 0xFA, 0x04, 0x00, 0xFF, 0x00, 0x01, 0x00, 0x04, 0x03, 0x02, 0x01 };
+  const uint8_t multiTgt[]  = { 0xFD, 0xFC, 0xFB, 0xFA, 0x02, 0x00, 0x90, 0x00, 0x04, 0x03, 0x02, 0x01 };
+  const uint8_t endCfg[]    = { 0xFD, 0xFC, 0xFB, 0xFA, 0x02, 0x00, 0xFE, 0x00, 0x04, 0x03, 0x02, 0x01 };
+  delay(300);                                   // 레이더 부팅 대기
+  ld2450Send(enableCfg, sizeof(enableCfg));
+  ld2450Send(multiTgt, sizeof(multiTgt));
+  ld2450Send(endCfg, sizeof(endCfg));
+  Serial.println("LD2450 다중 추적 모드 설정 완료");
 }
 
 // [RG] LD2450 좌표 해석: 최상위 비트가 1이면 양수, 0이면 음수 (부호-크기 방식)
