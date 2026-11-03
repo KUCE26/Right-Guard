@@ -3,6 +3,7 @@
 //  Team Right Guard · 고려대학교 KU CreativeX (CRP)
 //
 //   LD2450 ──UART──▶ 이 보드 ──블루투스──▶ LED 유닛 ──USB──▶ 메타버스
+//                          └──USB──▶ 메타버스 (이 보드를 노트북에 직접 꽂아도 홀로그램이 뜸)
 //                                 'X' / 'A'            (사람 있음 / 없음, 기존과 동일)
 //                                 "RG:POS,x1,y1,x2,y2,x3,y3\n"  (레이더가 보는 사람 모두의 좌표 mm, 가까운 순 · 새로 추가)
 //
@@ -35,6 +36,7 @@ unsigned long lastRetryMs = 0;        // 마지막 재연결 시도 시각
 void setup() {
   Serial.begin(115200);
   Serial2.begin(256000, SERIAL_8N1, 16, 17);   // 센서TX→16, 센서RX→17
+  Serial.println("RG:HELLO,SENSOR,1.0");       // [RG] 노트북 USB에 직접 꽂아도 메타버스가 '센서 유닛'으로 알아봄
 
   // 송신기(Master) 모드로 블루투스 시작
   SerialBT.begin("RightGuard_Sensor", true);
@@ -101,22 +103,25 @@ void parseFrame(uint8_t* f) {
       Serial.print(currentState == 'X' ? "🚨 감지됨 -> 'X' 전송" : "✅ 안전함 -> 'A' 전송");
       Serial.println();
     }
+    Serial.println(currentState == 'X' ? "RG:REAL,1" : "RG:REAL,0");   // [RG] USB로도 보고 (메타버스 직접 연결용)
     lastState = currentState;
     lastSendTime = millis();
   }
 
   // [RG] 보이는 사람 모두의 좌표를 한 줄로 100 ms 간격 전송 → LED 유닛이 메타버스로 넘김
   //      예) RG:POS,-320,1850,900,3400   (가까운 순, 한 사람당 x,y)
-  if (found && connected && millis() - lastPosMs >= POS_MS) {
+  if (found && millis() - lastPosMs >= POS_MS) {
     lastPosMs = millis();
-    SerialBT.print("RG:POS");
-    for (int i = 0; i < n; i++) {
+    char line[48];
+    int len = snprintf(line, sizeof(line), "RG:POS");
+    for (int i = 0; i < n && len < (int)sizeof(line) - 14; i++) {
 #if MIRROR_X
       px[i] = -px[i];
 #endif
-      SerialBT.printf(",%d,%d", px[i], py[i]);
+      len += snprintf(line + len, sizeof(line) - len, ",%d,%d", px[i], py[i]);
     }
-    SerialBT.print("\n");
+    if (connected) SerialBT.println(line);   // 블루투스 → LED 유닛 → 메타버스
+    Serial.println(line);                    // [RG] USB → 메타버스 (직접 꽂았을 때)
   }
 }
 
