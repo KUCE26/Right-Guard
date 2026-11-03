@@ -25,7 +25,7 @@ npm run build:compare   # compare.html 을 다시 만듦 (Python 3)
 | `src/body.html`, `src/style.css` | 화면(버튼·패널) 구성 |
 | `assets/` | 고려대학교 엠블럼·차세대통신학과 이미지 (data URI) |
 | `compare/` | 효과 비교 페이지 원본과 미리 돌려 둔 결과(`ref.json`) |
-| `firmware/` | ESP32 + LED 장치를 메타버스와 잇는 코드 (USB 시리얼) |
+| `firmware/` | ESP32 + LED 장치를 메타버스와 잇는 코드 (USB 시리얼). `RightGuard_LED_Unit/`·`RightGuard_Sensor_Unit/` 은 실제 장치에 올리는 완성본 (파일 하나씩, 라이브러리 외 별도 파일 없음) |
 
 ## 주의
 - 효과 비교는 같은 seed면 같은 차·사람이 나오도록 난수 순서에 기댑니다. 차·사람 생성 코드(`vehicles.js`, `pedestrians.js`)를 고칠 때는 `Math.random` 사용 횟수가 바뀌지 않게 해야 비교 결과가 그대로 유지됩니다.

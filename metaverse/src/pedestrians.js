@@ -49,9 +49,12 @@ function buildMesh(kind) {
   const outer = Math.random;
   Math.random = NATIVE_RANDOM;
   try {
-    const rig = buildPerson(kind, { seed, material: holo ? HOLO : undefined });
+    // 홀로그램은 사람마다 따로 흐려질 수 있게 재질을 복사해 씀 (현실 보행자 여러 명)
+    const holoMat = holo ? HOLO.clone() : undefined;
+    const rig = buildPerson(kind, { seed, material: holoMat });
     const root = rig.root;
     if (holo) {
+      root.userData.holoMat = holoMat;
       const ring = new THREE.Mesh(new THREE.RingGeometry(0.45, 0.62, 32), new THREE.MeshBasicMaterial({ color: 0x3fd8ff, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
       ring.rotation.x = -Math.PI / 2;
       ring.position.y = 0.04;
@@ -59,6 +62,7 @@ function buildMesh(kind) {
       beam.position.y = 3.5;
       root.add(ring, beam);
       root.userData.ring = ring;
+      root.userData.beam = beam;
     }
     return { root, body: rig.body, legs: rig.legs, arms: rig.arms, rig };
   } finally {
